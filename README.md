@@ -3,3 +3,4 @@ A bubble-shooter game where the ammunition are siRNA sequences fighting off the 
 Both sequences must align in order to destroy the HIV groups. <br />
 The substitution rate can be manipulated as a difficulty setting. <br />
 You can also simulate rapid mutation of the HIV virus using [SpartaABC webserver!](http://spartaabc.tau.ac.il/webserver/) <br />
+Based on [this](http://rembound.com/articles/bubble-shooter-game-tutorial-with-html5-and-javascript) HTML5 game
