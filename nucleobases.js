@@ -1,15 +1,12 @@
-var nucleotides = (function() {
+var nucleobases = (function() {
 
-  var createNucleotideFactory = function(options) {
-    return new NucleotideFactory(options);
+  var createNucleobaseFactory = function(options) {
+    return new NucleobaseFactory(options);
   };
 
-  var Nucleotide = function(options) {
-  };
-
-  var NucleotideFactory = function(options) {
-    if (options === undefined) throw "NucleotideFactory: no options";
-    if (options.game === undefined) throw "NucleotideFactory: no game";
+  var NucleobaseFactory = function(options) {
+    if (options === undefined) throw "NucleobaseFactory: no options";
+    if (options.game === undefined) throw "NucleobaseFactory: no game";
 
     this._game = options.game;
   };
@@ -17,27 +14,35 @@ var nucleotides = (function() {
   // from colorbrewer. red, blue, green, purple
   var colors = [0xe41a1c, 0x377eb8, 0x4daf4a, 0x984ea3];
 
-  NucleotideFactory.prototype.createAdenine = function(options) {
+  NucleobaseFactory.prototype.createAdenine = function(options) {
     options.color = colors[0];
-    return this._createPurine(options);
+    var adenine = this._createPurine(options);
+    adenine.data.nucleobaseType = 'adenine';
+    return adenine;
   };
 
-  NucleotideFactory.prototype.createCytosine = function(options) {
+  NucleobaseFactory.prototype.createCytosine = function(options) {
     options.color = colors[1];
-    return this._createPyrimidine(options);
+    var cytosine = this._createPyrimidine(options);
+    cytosine.data.nucleobaseType = 'cytosine';
+    return cytosine;
   };
 
-  NucleotideFactory.prototype.createGuanine = function(options) {
+  NucleobaseFactory.prototype.createGuanine = function(options) {
     options.color = colors[2];
-    return this._createPurine(options);
+    var guanine = this._createPurine(options);
+    guanine.data.nucleobaseType = 'guanine';
+    return guanine;
   };
 
-  NucleotideFactory.prototype.createThymine = function(options) {
+  NucleobaseFactory.prototype.createUracil = function(options) {
     options.color = colors[3];
-    return this._createPyrimidine(options);
+    var uracil = this._createPyrimidine(options);
+    uracil.data.nucleobaseType = 'uracil';
+    return uracil;
   };
 
-  NucleotideFactory.prototype.createRandomNucleotide = function(options) {
+  NucleobaseFactory.prototype.createRandomNucleobase = function(options) {
     var index = Math.floor(Math.random() * 4);
 
     if (index === 0) {
@@ -50,14 +55,21 @@ var nucleotides = (function() {
       return this.createGuanine(options);
     }
     else if (index === 3) {
-      return this.createThymine(options);
+      return this.createUracil(options);
     }
     else {
       throw "Invalid index";
     }
   };
 
-  NucleotideFactory.prototype._createPurine = function(options) {
+  NucleobaseFactory.prototype.createPlaceholderNucleobase = function(options) {
+    options.color = 0x999999;
+    var placeholder = this._createPyrimidine(options);
+    placeholder.data.nucleobaseType = 'placeholder';
+    return placeholder;
+  };
+
+  NucleobaseFactory.prototype._createPurine = function(options) {
     if (options === undefined) throw "_createPurine: no options";
     if (options.x === undefined) throw "_createPurine: no x";
     if (options.y === undefined) throw "_createPurine: no y";
@@ -71,7 +83,7 @@ var nucleotides = (function() {
     return purine;
   };
 
-  NucleotideFactory.prototype._createPyrimidine = function(options) {
+  NucleobaseFactory.prototype._createPyrimidine = function(options) {
     if (options === undefined) throw "_createPyrimidine: no options";
     if (options.x === undefined) throw "_createPyrimidine: no x";
     if (options.y === undefined) throw "_createPyrimidine: no y";
@@ -86,7 +98,7 @@ var nucleotides = (function() {
   };
 
   return {
-    createNucleotideFactory: createNucleotideFactory
+    createNucleobaseFactory: createNucleobaseFactory
   };
 
 })();
