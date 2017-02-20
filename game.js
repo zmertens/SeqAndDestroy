@@ -16,16 +16,27 @@
   var rna;
   var snapped = false;
 
+  var bacteriaFilter;
+  var bacteriaSprite;
 
   function preload() {
     game.load.image('ball', 'assets/ball_grayscale.png');
     game.load.image('square', 'assets/block_solid.png');
+    game.load.shader('bacteria', 'assets/bacteria.frag');
   }
 
   function create() {
     game.stage.backgroundColor = "#333333";
     game.physics.startSystem(Phaser.Physics.ARCADE);
     //game.physics.arcade.gravity.y = 100;
+
+    bacteriaFilter = new Phaser.Filter(game, null, game.cache.getShader('bacteria'));
+    bacteriaFilter.setResolution(800, 600);
+    bacteriaSprite = game.add.sprite();
+    bacteriaSprite.width = 800;
+    bacteriaSprite.height = 600;
+    bacteriaSprite.filters = [bacteriaFilter];
+
     nextFire = game.time.now + fireRate;
 
     nucFac = nucleobases.createNucleobaseFactory({ game: game });
@@ -60,6 +71,8 @@
   }
 
   function update() {
+    bacteriaFilter.update();
+    
     if (!siRNAsMoving) {
 
       if (game.time.now > nextFire && game.input.activePointer.isDown) {
