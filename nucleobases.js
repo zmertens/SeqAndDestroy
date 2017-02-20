@@ -62,6 +62,26 @@ var nucleobases = (function() {
     }
   };
 
+  NucleobaseFactory.prototype.createNucleobaseFromType = function(options) {
+    if (options.type === undefined) throw "createNucleobaseFromType: no type";
+
+    if (options.type === 'adenine') {
+      return this.createAdenine(options);
+    }
+    else if (options.type === 'cytosine') {
+      return this.createCytosine(options);
+    }
+    else if (options.type === 'guanine') {
+      return this.createGuanine(options);
+    }
+    else if (options.type === 'uracil') {
+      return this.createUracil(options);
+    }
+    else {
+      throw "Invalid index";
+    }
+  };
+
   NucleobaseFactory.prototype.createPlaceholderNucleobase = function(options) {
     options.color = 0x999999;
     var placeholder = this._createPyrimidine(options);
