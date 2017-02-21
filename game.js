@@ -17,7 +17,6 @@
   var matched = false;
   var nrtiMoving = false;
   var nrti;
-  var rna;
   var dnaComp;
   var snapped = false;
   var activeRow = null;
@@ -84,7 +83,7 @@
     bacteriaSprite.height = gameHeight;
     bacteriaSprite.filters = [bacteriaFilter];
     bacteriaSprite.inputEnabled = true;
-    bacteriaSprite.events.onInputDown.add(screenClicked, this);
+    bacteriaSprite.events.onInputDown.add(stageClicked, this);
 
     nextFire = game.time.now + fireRate;
 
@@ -130,10 +129,6 @@
     }
 
     nucleotide.data.overlapping = true;
-
-    if (matchedBase(rna, nucleotide)) {
-      nucleotide.data.matched = true;
-    }
   }
 
   function dnaOverlapHandler(dna, nrti) {
@@ -188,7 +183,18 @@
 
   function checkMatches() {
     if (nrti.data.overlapping) {
-      if (nrti.data.matched) {
+
+      var nearestRNA;
+      for (var i = 0; i < activeRow.length; i++) {
+        var rowRNA = activeRow.getAt(i);
+
+        if (floatCloseEnough(rowRNA.x, nrti.x)) {
+          nearestRNA = rowRNA;
+          break;
+        }
+      }
+
+      if (matchedBase(nrti, nearestRNA)) {
         matched = true;
       }
       else {
@@ -199,12 +205,18 @@
 
   function snapToGrid() {
 
-    var gridCorrection = computeGridCorrection(nrti);
-
     stopMovingNRTI();
 
-    nrti.x = nrti.x + gridCorrection.x;
-    nrti.y = nrti.y + gridCorrection.y - spriteHeight/2;
+
+    var gridCorrection = computeGridCorrection(nrti);
+
+    var x = gridCorrection.x - spriteWidth/2;
+    var y = gridCorrection.y - spriteHeight;
+
+    nrti.body.reset(x, y);
+
+    nrti.x = x;
+    nrti.y = y;
   }
 
   function moveNRTI(x, y) {
@@ -237,10 +249,10 @@
 
     var axisCorrection;
     if (snapNegative) {
-      axisCorrection = -axisOffset;
+      axisCorrection = divisionsCount;
     }
     else {
-      axisCorrection = 1 - axisOffset;
+      axisCorrection = divisionsCount + 1;
     }
 
     var axisCorrectionPixels = divisionSize * axisCorrection;
@@ -249,10 +261,9 @@
   }
 
   function createRow(height) {
-    var colsCount = gameWidth / spriteWidth;
     var row = game.add.group();
 
-    for (var i = 0; i < colsCount; i++) {
+    for (var i = 0; i < columnsCount; i++) {
       var x = computeXFromColumn(i);
       var nuc = nucFac.createRandomNucleobase({ x: x, y: height });
       row.add(nuc);
@@ -296,8 +307,12 @@
     return row*spriteHeight + spriteHeight/2;
   }
 
-  function screenClicked(sprite, pointer) {
+  function stageClicked(sprite, pointer) {
     moveNRTI(pointer.clientX, pointer.clientY);
+  }
+
+  function floatCloseEnough(a, b) {
+    return Math.abs(a - b) < 0.0001;
   }
 
 
