@@ -21,7 +21,7 @@
   var bacteriaFilter;
   var bacteriaSprite;
 
-  var game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO,
+  var game = new Phaser.Game(gameWidth, gameHeight, Phaser.WEBGL,
     'SeqAndDestroy', 
 	  { preload: preload, create: create, update: update, render: render });
 
@@ -71,7 +71,6 @@
   function create() {
     game.stage.backgroundColor = "#333333";
     game.physics.startSystem(Phaser.Physics.ARCADE);
-    //game.physics.arcade.gravity.y = 100;
 
     bacteriaFilter = new Phaser.Filter(game, null,
       game.cache.getShader('bacteria'));
@@ -80,6 +79,8 @@
     bacteriaSprite.width = gameWidth;
     bacteriaSprite.height = gameHeight;
     bacteriaSprite.filters = [bacteriaFilter];
+    bacteriaSprite.inputEnabled = true;
+    bacteriaSprite.events.onInputDown.add(screenClicked, this);
 
     nextFire = game.time.now + fireRate;
 
@@ -102,21 +103,11 @@
     trans.activate();
 
     createStartNRTI();
-
   }
 
   function update() {
     bacteriaFilter.update();
     
-    if (!nrtiMoving) {
-
-      if (game.time.now > nextFire && game.input.activePointer.isDown) {
-        if (nrti.data.nucleobaseType !== 'placeholder') {
-          moveNRTI(game.input.x, game.input.y);
-        }
-      }
-    }
-
     game.physics.arcade.overlap(nrti, activeRow, overlapHandler, null, this);
     game.physics.arcade.overlap(nrti, dnaComp, dnaOverlapHandler, null, this);
 
@@ -143,11 +134,7 @@
   }
 
   function dnaOverlapHandler(dna, nrti) {
-    //console.log("collision");
     resetNRTI();
-  }
-
-  function rnaOnDown(sprite) {
   }
 
   // Cycles through the available rna
@@ -177,8 +164,7 @@
   };
 
   function replacePlaceholder(sprite, constructor) {
-    var newNuc = constructor({ x: sprite.x, y: sprite.y });
-    nrti = newNuc;
+    createStartNRTI(constructor);
     sprite.destroy();
   }
 
@@ -219,8 +205,10 @@
   }
 
   function moveNRTI(x, y) {
-    game.physics.arcade.moveToXY(nrti, x, y, 500);
-    nrtiMoving = true;
+    if (!nrtiMoving) {
+      game.physics.arcade.moveToXY(nrti, x, y, 500);
+      nrtiMoving = true;
+    }
   }
 
   function stopMovingNRTI() {
@@ -260,8 +248,6 @@
   function createRow(height) {
     var colsCount = gameWidth / spriteWidth;
     var row = game.add.group();
-    row.inputEnableChildren = true;
-    row.onChildInputDown.add(rnaOnDown, this);
 
     for (var i = 0; i < colsCount; i++) {
       var x = computeXFromColumn(i);
@@ -274,14 +260,23 @@
     return row;
   }
 
-  function createStartNRTI() {
+  function createStartNRTI(constructor) {
+
     snapped = false;
     var halfwayAcrossScreen = gameWidth/2;
-    nrti = nucFac.createRandomNucleobase(
-        { x: halfwayAcrossScreen, y: 580 });
+    var options = { x: halfwayAcrossScreen, y: 580 };
+
+    if (constructor) {
+      nrti = constructor(options);
+    }
+    else {
+      nrti = nucFac.createRandomNucleobase(options);
+    }
+
     nrti.enableBody = true;
-    nrti.events.onInputDown.add(nrtiOnDown, this);
     game.physics.enable(nrti, Phaser.Physics.ARCADE);
+    nrti.inputEnabled = true;
+    nrti.events.onInputDown.add(nrtiOnDown, this);
   }
 
   function resetNRTI() {
@@ -297,5 +292,10 @@
   function computeYFromRow(row) {
     return row*spriteHeight + spriteHeight/2;
   }
+
+  function screenClicked(sprite, pointer) {
+    moveNRTI(pointer.clientX, pointer.clientY);
+  }
+
 
 })();
