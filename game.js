@@ -77,19 +77,6 @@
     dummyNucleoside.destroy();
 
     var rowsCount = 5;
-    //var colsCount = 20;
-
-    //rna = game.add.group();
-    //rna.inputEnableChildren = true;
-    //rna.onChildInputDown.add(rnaOnDown, this);
-    //for (var i = 0; i < rowsCount; i++) {
-    //  for (var j = 0; j < colsCount; j++) {
-    //    var nuc = nucFac.createRandomNucleobase(
-    //      { x: j*width + width/2, y: i*height + height/2 });
-    //    rna.add(nuc);
-    //  }
-    //}
-    
     var rows = [];
     for (var i = 0; i < rowsCount; i++) {
       var rowHeight = computeYFromRow(i);
@@ -100,20 +87,10 @@
     var trans = new ReverseTranscriptase(nucFac, activeRow);
     trans.activate();
 
-    nrti = game.add.group();
-    nrti.inputEnableChildren = true;
-    nrti.onChildInputDown.add(nrtiOnDown, this);
-    nrti.enableBody = true;
-    var nrtiNucleotideCount = 1;
     var halfwayAcrossScreen = gameWidth/2;
-    for (var i = 0; i < nrtiNucleotideCount; i++) {
-      var nuc = nucFac.createRandomNucleobase(
+    nrti = nucFac.createRandomNucleobase(
         { x: halfwayAcrossScreen, y: 580 });
-      nrti.add(nuc);
-    }
-
-    //game.physics.enable(rna, Phaser.Physics.ARCADE);
-    //rna.setAll('body.immovable', true);
+    nrti.enableBody = true;
 
     game.physics.enable(nrti, Phaser.Physics.ARCADE);
   }
@@ -126,28 +103,15 @@
       if (game.time.now > nextFire && game.input.activePointer.isDown) {
         var allChosen = true;
 
-        nrti.forEach(function(rna) {
-          if (rna.data.nucleobaseType === 'placeholder') {
-            allChosen = false;
-          }
-        });
-
-        if (allChosen) {
+        if (nrti.data.nucleobaseType !== 'placeholder') {
 
           nrtiMoving = true;
-
-          for (var i = 0; i < nrti.length; i++) {
-            var x = game.input.x + i*spriteWidth;
-            game.physics.arcade.moveToXY(nrti.getAt(i), x, game.input.y,
-              500);
-          }
+          game.physics.arcade.moveToXY(nrti, game.input.x, game.input.y, 500);
         }
-
       }
     }
 
-    game.physics.arcade.overlap(activeRow, nrti, overlapHandler,
-      null, this);
+    game.physics.arcade.overlap(nrti, activeRow, overlapHandler, null, this);
 
     if (!matched) {
       checkMatches();
@@ -157,7 +121,7 @@
   function render() {
   }
 
-  function overlapHandler(rna, nucleotide) {
+  function overlapHandler(nucleotide, rna) {
 
     if (!snapped) {
       snapToGrid();
@@ -202,8 +166,7 @@
 
   function replacePlaceholder(sprite, constructor) {
     var newNuc = constructor({ x: sprite.x, y: sprite.y });
-    var index = nrti.getIndex(sprite);
-    nrti.addAt(newNuc, index);
+    nrti = newNuc;
     sprite.destroy();
   }
 
@@ -223,30 +186,8 @@
   }
 
   function checkMatches() {
-    var allOverlapped = true;
-
-    for (var i = 0; i < nrti.length; i++ ) {
-      var rna = nrti.getAt(i);
-
-      if (!rna.data.overlapping) {
-        allOverlapped = false;
-        break;
-      }
-    }
-
-    if (allOverlapped) {
-      var allMatched = true;
-
-      for (var i = 0; i < nrti.length; i++) {
-        var rna = nrti.getAt(i);
-
-        if (!rna.data.matched) {
-          allMatched = false;
-          break;
-        }
-      }
-
-      if (allMatched) {
+    if (nrti.data.overlapping) {
+      if (nrti.data.matched) {
         matched = true;
       }
       else {
@@ -257,14 +198,12 @@
 
   function snapToGrid() {
 
-    nrti.forEach(function(nucleotide) {
-      var gridCorrection = computeGridCorrection(nucleotide);
+    var gridCorrection = computeGridCorrection(nrti);
 
-      nucleotide.body.velocity.x = 0;
-      nucleotide.body.velocity.y = 0;
-      nucleotide.x = nucleotide.x + gridCorrection.x;
-      nucleotide.y = nucleotide.y + gridCorrection.y - spriteHeight/2;
-    });
+    nrti.body.velocity.x = 0;
+    nrti.body.velocity.y = 0;
+    nrti.x = nrti.x + gridCorrection.x;
+    nrti.y = nrti.y + gridCorrection.y - spriteHeight/2;
   }
 
   function computeGridCorrection(nucleotide) {
