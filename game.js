@@ -4,8 +4,12 @@
   var gameWidth = 800;
   var gameHeight = 600;
 
-  var spriteWidth = 40;
-  var spriteHeight = 40;
+  var columnsCount = 20;
+
+  var spriteWidth = gameWidth / columnsCount;
+  var spriteHeight = spriteWidth;
+
+  var rowsCount = Math.floor((gameHeight / spriteHeight) / 2);
 
   var nucFac;
   var fireRate = 100;
@@ -91,7 +95,6 @@
     };
     nucFac = nucleobases.createNucleobaseFactory(factoryOptions);
 
-    var rowsCount = 5;
     var rows = [];
     for (var i = 0; i < rowsCount; i++) {
       var rowHeight = computeYFromRow(i);
@@ -264,7 +267,7 @@
 
     snapped = false;
     var halfwayAcrossScreen = gameWidth/2;
-    var options = { x: halfwayAcrossScreen, y: 580 };
+    var options = { x: halfwayAcrossScreen, y: gameHeight - spriteHeight/2 };
 
     if (constructor) {
       nrti = constructor(options);
