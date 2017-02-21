@@ -104,10 +104,7 @@ var nucleobases = (function() {
     if (options.color === undefined) throw "_createPurine: no color";
 
     var purine = this._game.add.sprite(options.x, options.y, 'square');
-    purine.anchor.set(0.5);
-    purine.width = this._spriteWidth;
-    purine.height = this._spriteHeight;
-    purine.tint = options.color;
+    this._setCommonSettings(options, purine);
 
     return purine;
   };
@@ -119,12 +116,16 @@ var nucleobases = (function() {
     if (options.color === undefined) throw "_createPyrimidine: no color";
 
     var pyrimidine = this._game.add.sprite(options.x, options.y, 'ball');
-    pyrimidine.anchor.set(0.5);
-    pyrimidine.width = this._spriteWidth;
-    pyrimidine.height = this._spriteHeight;
-    pyrimidine.tint = options.color;
+    this._setCommonSettings(options, pyrimidine);
 
     return pyrimidine;
+  };
+
+  NucleobaseFactory.prototype._setCommonSettings = function(options, nuc) {
+    nuc.anchor.set(0.5);
+    nuc.width = this._spriteWidth;
+    nuc.height = this._spriteHeight;
+    nuc.tint = options.color;
   };
 
   return {
