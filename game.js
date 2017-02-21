@@ -4,8 +4,8 @@
   var gameWidth = 800;
   var gameHeight = 600;
 
-  var spriteWidth;
-  var spriteHeight;
+  var spriteWidth = 40;
+  var spriteHeight = 40;
 
   var nucFac;
   var fireRate = 100;
@@ -68,13 +68,12 @@
 
     nextFire = game.time.now + fireRate;
 
-    nucFac = nucleobases.createNucleobaseFactory({ game: game });
-    // TODO: nasty hack. There's got to be a way to determine this when the
-    // sprite is loaded.
-    var dummyNucleoside = nucFac.createRandomNucleobase({ x: 0, y: 0 });
-    spriteWidth = dummyNucleoside.width;
-    spriteHeight = dummyNucleoside.height;
-    dummyNucleoside.destroy();
+    var factoryOptions = {
+      game: game,
+      spriteWidth: spriteWidth,
+      spriteHeight: spriteHeight
+    };
+    nucFac = nucleobases.createNucleobaseFactory(factoryOptions);
 
     var rowsCount = 5;
     var rows = [];

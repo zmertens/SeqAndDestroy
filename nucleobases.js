@@ -7,8 +7,16 @@ var nucleobases = (function() {
   var NucleobaseFactory = function(options) {
     if (options === undefined) throw "NucleobaseFactory: no options";
     if (options.game === undefined) throw "NucleobaseFactory: no game";
+    if (options.spriteWidth === undefined) {
+      throw "NucleobaseFactory: no spriteWidth";
+    }
+    if (options.spriteHeight === undefined) {
+      throw "NucleobaseFactory: no spriteHeight";
+    }
 
     this._game = options.game;
+    this._spriteWidth = options.spriteWidth;
+    this._spriteHeight = options.spriteHeight;
   };
 
   // from colorbrewer. red, blue, green, purple
@@ -97,7 +105,8 @@ var nucleobases = (function() {
 
     var purine = this._game.add.sprite(options.x, options.y, 'square');
     purine.anchor.set(0.5);
-    purine.scale.setTo(0.3);
+    purine.width = this._spriteWidth;
+    purine.height = this._spriteHeight;
     purine.tint = options.color;
 
     return purine;
@@ -111,7 +120,8 @@ var nucleobases = (function() {
 
     var pyrimidine = this._game.add.sprite(options.x, options.y, 'ball');
     pyrimidine.anchor.set(0.5);
-    pyrimidine.scale.setTo(0.3);
+    pyrimidine.width = this._spriteWidth;
+    pyrimidine.height = this._spriteHeight;
     pyrimidine.tint = options.color;
 
     return pyrimidine;
