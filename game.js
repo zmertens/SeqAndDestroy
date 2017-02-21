@@ -1,23 +1,69 @@
 (function() {
   "use strict";
 
-  var game = new Phaser.Game(800, 600, Phaser.AUTO, 'SeqAndDestroy', 
-	  { preload: preload, create: create, update: update, render: render });
+  var gameWidth = 800;
+  var gameHeight = 600;
 
-  var width = 38.4;
-  var height = 38.4;
+  var columnsCount = 20;
+
+  var spriteWidth = gameWidth / columnsCount;
+  var spriteHeight = spriteWidth;
+
+  var rowsCount = Math.floor((gameHeight / spriteHeight) / 2);
 
   var nucFac;
   var fireRate = 100;
   var nextFire;
   var matched = false;
-  var siRNAsMoving = false;
-  var siRNAs;
-  var rna;
+  var nrtiMoving = false;
+  var nrti;
+  var dnaComp;
   var snapped = false;
+  var activeRow = null;
 
   var bacteriaFilter;
   var bacteriaSprite;
+
+  var game = new Phaser.Game(gameWidth, gameHeight, Phaser.WEBGL,
+    'SeqAndDestroy', 
+	  { preload: preload, create: create, update: update, render: render });
+
+  var ReverseTranscriptase = function(nucFac, row) {
+    this._nucFac = nucFac;
+    this._row = row;
+    this._col = 0;
+    dnaComp = game.add.group();
+    game.physics.enable(dnaComp, Phaser.Physics.ARCADE);
+  };
+
+  ReverseTranscriptase.prototype.activate = function() {
+    this.addNextNucleotide();
+  };
+
+  ReverseTranscriptase.prototype.addNextNucleotide = function() {
+
+    if (this._col !== this._row.length) {
+      var rna = this._row.getAt(this._col); 
+      var x = computeXFromColumn(this._col);
+      var y = rna.y + spriteHeight/2;
+      var comp = complement(rna.data.nucleobaseType);
+
+      var compOptions = {
+        type: comp,
+        x: x,
+        y: y
+      };
+      var dna = this._nucFac.createNucleobaseFromType(compOptions);
+      dna.enableBody = true;
+      game.physics.enable(dna, Phaser.Physics.ARCADE);
+      dnaComp.add(dna);
+
+      this._col++;
+
+      game.time.events.add(Phaser.Timer.SECOND * 0.5, this.addNextNucleotide,
+        this);
+    }
+  };
 
   function preload() {
     game.load.image('ball', 'assets/ball_grayscale.png');
@@ -28,78 +74,44 @@
   function create() {
     game.stage.backgroundColor = "#333333";
     game.physics.startSystem(Phaser.Physics.ARCADE);
-    //game.physics.arcade.gravity.y = 100;
 
-    bacteriaFilter = new Phaser.Filter(game, null, game.cache.getShader('bacteria'));
-    bacteriaFilter.setResolution(800, 600);
+    bacteriaFilter = new Phaser.Filter(game, null,
+      game.cache.getShader('bacteria'));
+    bacteriaFilter.setResolution(gameWidth, gameHeight);
     bacteriaSprite = game.add.sprite();
-    bacteriaSprite.width = 800;
-    bacteriaSprite.height = 600;
+    bacteriaSprite.width = gameWidth;
+    bacteriaSprite.height = gameHeight;
     bacteriaSprite.filters = [bacteriaFilter];
+    bacteriaSprite.inputEnabled = true;
+    bacteriaSprite.events.onInputDown.add(stageClicked, this);
 
     nextFire = game.time.now + fireRate;
 
-    nucFac = nucleobases.createNucleobaseFactory({ game: game });
+    var factoryOptions = {
+      game: game,
+      spriteWidth: spriteWidth,
+      spriteHeight: spriteHeight
+    };
+    nucFac = nucleobases.createNucleobaseFactory(factoryOptions);
 
-    var rowsCount = 5;
-    var colsCount = 20;
-
-    rna = game.add.group();
-    rna.inputEnableChildren = true;
-    rna.onChildInputDown.add(nucOnDown, this);
+    var rows = [];
     for (var i = 0; i < rowsCount; i++) {
-      for (var j = 0; j < colsCount; j++) {
-        var nuc = nucFac.createRandomNucleobase(
-          { x: j*width + width/2, y: i*height + height/2 });
-        rna.add(nuc);
-      }
+      var rowHeight = computeYFromRow(i);
+      rows.push(createRow(rowHeight));
     }
+    activeRow = rows[rows.length-1];
 
-    siRNAs = game.add.group();
-    siRNAs.inputEnableChildren = true;
-    siRNAs.onChildInputDown.add(siRNAsOnDown, this);
-    siRNAs.enableBody = true;
-    for (var i = 0; i < 3; i++) {
-      var nuc = nucFac.createRandomNucleobase({ x: i*width + 350, y: 580 });
-      siRNAs.add(nuc);
-    }
+    var trans = new ReverseTranscriptase(nucFac, activeRow);
+    trans.activate();
 
-    game.physics.enable(rna, Phaser.Physics.ARCADE);
-    rna.setAll('body.immovable', true);
-
-    game.physics.enable(siRNAs, Phaser.Physics.ARCADE);
+    createStartNRTI();
   }
 
   function update() {
     bacteriaFilter.update();
     
-    if (!siRNAsMoving) {
-
-      if (game.time.now > nextFire && game.input.activePointer.isDown) {
-        var allChosen = true;
-
-        siRNAs.forEach(function(rna) {
-          if (rna.data.nucleobaseType === 'placeholder') {
-            allChosen = false;
-          }
-        });
-
-        if (allChosen) {
-
-          siRNAsMoving = true;
-
-          for (var i = 0; i < siRNAs.length; i++) {
-            var x = game.input.x + i*width;
-            game.physics.arcade.moveToXY(siRNAs.getAt(i), x, game.input.y,
-              500);
-          }
-        }
-
-      }
-    }
-
-    game.physics.arcade.overlap(rna, siRNAs, overlapHandler,
-      null, this);
+    game.physics.arcade.overlap(nrti, activeRow, overlapHandler, null, this);
+    game.physics.arcade.overlap(nrti, dnaComp, dnaOverlapHandler, null, this);
 
     if (!matched) {
       checkMatches();
@@ -109,26 +121,23 @@
   function render() {
   }
 
-  function overlapHandler(rna, siRNA) {
+  function overlapHandler(nucleotide, rna) {
 
     if (!snapped) {
       snapToGrid();
       snapped = true;
     }
 
-    siRNA.data.overlapping = true;
-
-    if (matchedBase(rna, siRNA)) {
-      siRNA.data.matched = true;
-    }
+    nucleotide.data.overlapping = true;
   }
 
-  function nucOnDown(sprite) {
+  function dnaOverlapHandler(dna, nrti) {
+    resetNRTI();
   }
 
   // Cycles through the available rna
-  function siRNAsOnDown(sprite) {
-    if (!siRNAsMoving) {
+  function nrtiOnDown(sprite) {
+    if (!nrtiMoving) {
       nextFire = game.time.now + fireRate;
 
       // Once you've switched away from the placeholder, there's no way to get
@@ -153,9 +162,7 @@
   };
 
   function replacePlaceholder(sprite, constructor) {
-    var newNuc = constructor({ x: sprite.x, y: sprite.y });
-    var index = siRNAs.getIndex(sprite);
-    siRNAs.addAt(newNuc, index);
+    createStartNRTI(constructor);
     sprite.destroy();
   }
 
@@ -175,53 +182,59 @@
   }
 
   function checkMatches() {
-    var allOverlapped = true;
+    if (nrti.data.overlapping) {
 
-    for (var i = 0; i < siRNAs.length; i++ ) {
-      var rna = siRNAs.getAt(i);
+      var nearestRNA;
+      for (var i = 0; i < activeRow.length; i++) {
+        var rowRNA = activeRow.getAt(i);
 
-      if (!rna.data.overlapping) {
-        allOverlapped = false;
-        break;
-      }
-    }
-
-    if (allOverlapped) {
-      var allMatched = true;
-
-      for (var i = 0; i < siRNAs.length; i++) {
-        var rna = siRNAs.getAt(i);
-
-        if (!rna.data.matched) {
-          allMatched = false;
+        if (floatCloseEnough(rowRNA.x, nrti.x)) {
+          nearestRNA = rowRNA;
           break;
         }
       }
 
-      if (allMatched) {
+      if (matchedBase(nrti, nearestRNA)) {
         matched = true;
       }
       else {
-        siRNAs.destroy();
+        resetNRTI();
       }
     }
   }
 
   function snapToGrid() {
 
-    siRNAs.forEach(function(siRNA) {
-      var gridCorrection = computeGridCorrection(siRNA);
+    stopMovingNRTI();
 
-      siRNA.body.velocity.x = 0;
-      siRNA.body.velocity.y = 0;
-      siRNA.x = siRNA.x + gridCorrection.x;
-      siRNA.y = siRNA.y + gridCorrection.y - height/2;
-    });
+
+    var gridCorrection = computeGridCorrection(nrti);
+
+    var x = gridCorrection.x - spriteWidth/2;
+    var y = gridCorrection.y - spriteHeight;
+
+    nrti.body.reset(x, y);
+
+    nrti.x = x;
+    nrti.y = y;
   }
 
-  function computeGridCorrection(siRNA) {
-    var xCorrectionPixels = computeAxisCorrection(siRNA.x, width);
-    var yCorrectionPixels = computeAxisCorrection(siRNA.y, height);
+  function moveNRTI(x, y) {
+    if (!nrtiMoving) {
+      game.physics.arcade.moveToXY(nrti, x, y, 500);
+      nrtiMoving = true;
+    }
+  }
+
+  function stopMovingNRTI() {
+    nrti.body.velocity.x = 0;
+    nrti.body.velocity.y = 0;
+    nrtiMoving = false;
+  }
+
+  function computeGridCorrection(nucleotide) {
+    var xCorrectionPixels = computeAxisCorrection(nucleotide.x, spriteWidth);
+    var yCorrectionPixels = computeAxisCorrection(nucleotide.y, spriteHeight);
 
     return { x: xCorrectionPixels, y: yCorrectionPixels };
   }
@@ -236,15 +249,71 @@
 
     var axisCorrection;
     if (snapNegative) {
-      axisCorrection = -axisOffset;
+      axisCorrection = divisionsCount;
     }
     else {
-      axisCorrection = 1 - axisOffset;
+      axisCorrection = divisionsCount + 1;
     }
 
     var axisCorrectionPixels = divisionSize * axisCorrection;
 
     return axisCorrectionPixels;
   }
+
+  function createRow(height) {
+    var row = game.add.group();
+
+    for (var i = 0; i < columnsCount; i++) {
+      var x = computeXFromColumn(i);
+      var nuc = nucFac.createRandomNucleobase({ x: x, y: height });
+      row.add(nuc);
+    }
+
+    game.physics.enable(row, Phaser.Physics.ARCADE);
+
+    return row;
+  }
+
+  function createStartNRTI(constructor) {
+
+    snapped = false;
+    var halfwayAcrossScreen = gameWidth/2;
+    var options = { x: halfwayAcrossScreen, y: gameHeight - spriteHeight/2 };
+
+    if (constructor) {
+      nrti = constructor(options);
+    }
+    else {
+      nrti = nucFac.createRandomNucleobase(options);
+    }
+
+    nrti.enableBody = true;
+    game.physics.enable(nrti, Phaser.Physics.ARCADE);
+    nrti.inputEnabled = true;
+    nrti.events.onInputDown.add(nrtiOnDown, this);
+  }
+
+  function resetNRTI() {
+    stopMovingNRTI();
+    nrti.kill();
+    createStartNRTI();
+  }
+
+  function computeXFromColumn(col) {
+    return col*spriteWidth + spriteWidth/2;
+  }
+
+  function computeYFromRow(row) {
+    return row*spriteHeight + spriteHeight/2;
+  }
+
+  function stageClicked(sprite, pointer) {
+    moveNRTI(pointer.clientX, pointer.clientY);
+  }
+
+  function floatCloseEnough(a, b) {
+    return Math.abs(a - b) < 0.0001;
+  }
+
 
 })();

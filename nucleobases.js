@@ -7,8 +7,16 @@ var nucleobases = (function() {
   var NucleobaseFactory = function(options) {
     if (options === undefined) throw "NucleobaseFactory: no options";
     if (options.game === undefined) throw "NucleobaseFactory: no game";
+    if (options.spriteWidth === undefined) {
+      throw "NucleobaseFactory: no spriteWidth";
+    }
+    if (options.spriteHeight === undefined) {
+      throw "NucleobaseFactory: no spriteHeight";
+    }
 
     this._game = options.game;
+    this._spriteWidth = options.spriteWidth;
+    this._spriteHeight = options.spriteHeight;
   };
 
   // from colorbrewer. red, blue, green, purple
@@ -62,6 +70,26 @@ var nucleobases = (function() {
     }
   };
 
+  NucleobaseFactory.prototype.createNucleobaseFromType = function(options) {
+    if (options.type === undefined) throw "createNucleobaseFromType: no type";
+
+    if (options.type === 'adenine') {
+      return this.createAdenine(options);
+    }
+    else if (options.type === 'cytosine') {
+      return this.createCytosine(options);
+    }
+    else if (options.type === 'guanine') {
+      return this.createGuanine(options);
+    }
+    else if (options.type === 'uracil') {
+      return this.createUracil(options);
+    }
+    else {
+      throw "Invalid index";
+    }
+  };
+
   NucleobaseFactory.prototype.createPlaceholderNucleobase = function(options) {
     options.color = 0x999999;
     var placeholder = this._createPyrimidine(options);
@@ -76,9 +104,7 @@ var nucleobases = (function() {
     if (options.color === undefined) throw "_createPurine: no color";
 
     var purine = this._game.add.sprite(options.x, options.y, 'square');
-    purine.anchor.set(0.5);
-    purine.scale.setTo(0.3);
-    purine.tint = options.color;
+    this._setCommonSettings(options, purine);
 
     return purine;
   };
@@ -90,11 +116,16 @@ var nucleobases = (function() {
     if (options.color === undefined) throw "_createPyrimidine: no color";
 
     var pyrimidine = this._game.add.sprite(options.x, options.y, 'ball');
-    pyrimidine.anchor.set(0.5);
-    pyrimidine.scale.setTo(0.3);
-    pyrimidine.tint = options.color;
+    this._setCommonSettings(options, pyrimidine);
 
     return pyrimidine;
+  };
+
+  NucleobaseFactory.prototype._setCommonSettings = function(options, nuc) {
+    nuc.anchor.set(0.5);
+    nuc.width = this._spriteWidth;
+    nuc.height = this._spriteHeight;
+    nuc.tint = options.color;
   };
 
   return {
