@@ -15,11 +15,15 @@
   var fireRate = 100;
   var nextFire;
   var matched = false;
+  var matchedColumn;
   var nrtiMoving = false;
   var nrti;
   var dnaComp;
   var snapped = false;
+
+  var rows;
   var activeRow = null;
+  var activeRowIndex = undefined;
 
   var bacteriaFilter;
   var bacteriaSprite;
@@ -43,25 +47,40 @@
   ReverseTranscriptase.prototype.addNextNucleotide = function() {
 
     if (this._col !== this._row.length) {
-      var rna = this._row.getAt(this._col); 
-      var x = computeXFromColumn(this._col);
-      var y = rna.y + spriteHeight/2;
-      var comp = complement(rna.data.nucleobaseType);
+      if (matched && matchedColumn === this._col) {
+        matched = false;
+        matchedColumn = undefined;
+        dnaComp.destroy();
+        resetNRTI();
 
-      var compOptions = {
-        type: comp,
-        x: x,
-        y: y
-      };
-      var dna = this._nucFac.createNucleobaseFromType(compOptions);
-      dna.enableBody = true;
-      game.physics.enable(dna, Phaser.Physics.ARCADE);
-      dnaComp.add(dna);
+        activeRow.destroy();
+        activeRowIndex--;
+        if (activeRowIndex >= 0) {
+          activeRow = rows[activeRowIndex];
+          new ReverseTranscriptase(this._nucFac, activeRow).activate();
+        }
+      }
+      else {
+        var rna = this._row.getAt(this._col); 
+        var x = computeXFromColumn(this._col);
+        var y = rna.y + spriteHeight/2;
+        var comp = complement(rna.data.nucleobaseType);
 
-      this._col++;
+        var compOptions = {
+          type: comp,
+          x: x,
+          y: y
+        };
+        var dna = this._nucFac.createNucleobaseFromType(compOptions);
+        dna.enableBody = true;
+        game.physics.enable(dna, Phaser.Physics.ARCADE);
+        dnaComp.add(dna);
 
-      game.time.events.add(Phaser.Timer.SECOND * 0.5, this.addNextNucleotide,
-        this);
+        this._col++;
+
+        game.time.events.add(Phaser.Timer.SECOND * 0.5, this.addNextNucleotide,
+          this);
+      }
     }
   };
 
@@ -94,12 +113,13 @@
     };
     nucFac = nucleobases.createNucleobaseFactory(factoryOptions);
 
-    var rows = [];
+    rows = [];
     for (var i = 0; i < rowsCount; i++) {
       var rowHeight = computeYFromRow(i);
       rows.push(createRow(rowHeight));
     }
-    activeRow = rows[rows.length-1];
+    activeRowIndex = rows.length - 1;
+    activeRow = rows[activeRowIndex];
 
     var trans = new ReverseTranscriptase(nucFac, activeRow);
     trans.activate();
@@ -185,17 +205,23 @@
     if (nrti.data.overlapping) {
 
       var nearestRNA;
-      for (var i = 0; i < activeRow.length; i++) {
-        var rowRNA = activeRow.getAt(i);
+      var column;
+      //console.log("activeRow.length:", activeRow.length);
+      for (column = 0; column < activeRow.length; column++) {
+        var rowRNA = activeRow.getAt(column);
 
+        //console.log("rowRNA:", rowRNA);
         if (floatCloseEnough(rowRNA.x, nrti.x)) {
           nearestRNA = rowRNA;
           break;
         }
       }
 
+      //console.log("nearestRNA:", nearestRNA);
+
       if (matchedBase(nrti, nearestRNA)) {
         matched = true;
+        matchedColumn = column;
       }
       else {
         resetNRTI();
@@ -206,7 +232,6 @@
   function snapToGrid() {
 
     stopMovingNRTI();
-
 
     var gridCorrection = computeGridCorrection(nrti);
 
@@ -221,7 +246,7 @@
 
   function moveNRTI(x, y) {
     if (!nrtiMoving) {
-      game.physics.arcade.moveToXY(nrti, x, y, 500);
+      game.physics.arcade.moveToXY(nrti, x, y, 1000);
       nrtiMoving = true;
     }
   }
@@ -312,8 +337,8 @@
   }
 
   function floatCloseEnough(a, b) {
+    //console.log("a:", a, "b", b);
     return Math.abs(a - b) < 0.0001;
   }
-
 
 })();
