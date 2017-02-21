@@ -86,12 +86,8 @@
     var trans = new ReverseTranscriptase(nucFac, activeRow);
     trans.activate();
 
-    var halfwayAcrossScreen = gameWidth/2;
-    nrti = nucFac.createRandomNucleobase(
-        { x: halfwayAcrossScreen, y: 580 });
-    nrti.enableBody = true;
+    createStartNRTI();
 
-    game.physics.enable(nrti, Phaser.Physics.ARCADE);
   }
 
   function update() {
@@ -104,7 +100,6 @@
 
         if (nrti.data.nucleobaseType !== 'placeholder') {
 
-          nrtiMoving = true;
           game.physics.arcade.moveToXY(nrti, game.input.x, game.input.y, 500);
         }
       }
@@ -191,6 +186,7 @@
       }
       else {
         nrti.destroy();
+        createStartNRTI();
       }
     }
   }
@@ -199,10 +195,21 @@
 
     var gridCorrection = computeGridCorrection(nrti);
 
-    nrti.body.velocity.x = 0;
-    nrti.body.velocity.y = 0;
+    stopMovingNRTI();
+
     nrti.x = nrti.x + gridCorrection.x;
     nrti.y = nrti.y + gridCorrection.y - spriteHeight/2;
+  }
+
+  function moveNRTI(x, y) {
+    moveNRTI(game.input.x, game.input.y);
+    nrtiMoving = true;
+  }
+
+  function stopMovingNRTI() {
+    nrti.body.velocity.x = 0;
+    nrti.body.velocity.y = 0;
+    nrtiMoving = false;
   }
 
   function computeGridCorrection(nucleotide) {
@@ -248,6 +255,15 @@
     }
 
     return row;
+  }
+
+  function createStartNRTI() {
+    snapped = false;
+    var halfwayAcrossScreen = gameWidth/2;
+    nrti = nucFac.createRandomNucleobase(
+        { x: halfwayAcrossScreen, y: 580 });
+    nrti.enableBody = true;
+    game.physics.enable(nrti, Phaser.Physics.ARCADE);
   }
 
   function computeXFromColumn(col) {
