@@ -14,13 +14,14 @@
   var nrtiMoving = false;
   var nrti;
   var rna;
+  var dnaComp;
   var snapped = false;
   var activeRow = null;
 
   var bacteriaFilter;
   var bacteriaSprite;
 
-  var game = new Phaser.Game(gameWidth, gameHeight, Phaser.CANVAS,
+  var game = new Phaser.Game(gameWidth, gameHeight, Phaser.AUTO,
     'SeqAndDestroy', 
 	  { preload: preload, create: create, update: update, render: render });
 
@@ -28,6 +29,8 @@
     this._nucFac = nucFac;
     this._row = row;
     this._col = 0;
+    dnaComp = game.add.group();
+    game.physics.enable(dnaComp, Phaser.Physics.ARCADE);
   };
 
   ReverseTranscriptase.prototype.activate = function() {
@@ -36,15 +39,27 @@
 
   ReverseTranscriptase.prototype.addNextNucleotide = function() {
 
-    var rna = this._row.getAt(this._col); 
-    var x = computeXFromColumn(this._col);
-    var y = rna.y + spriteHeight/2;
-    var comp = complement(rna.data.nucleobaseType);
-    this._nucFac.createNucleobaseFromType({ type: comp, x: x, y: y });
-    this._col++;
+    if (this._col !== this._row.length) {
+      var rna = this._row.getAt(this._col); 
+      var x = computeXFromColumn(this._col);
+      var y = rna.y + spriteHeight/2;
+      var comp = complement(rna.data.nucleobaseType);
 
-    game.time.events.add(Phaser.Timer.SECOND * 0.5, this.addNextNucleotide,
-      this);
+      var compOptions = {
+        type: comp,
+        x: x,
+        y: y
+      };
+      var dna = this._nucFac.createNucleobaseFromType(compOptions);
+      dna.enableBody = true;
+      game.physics.enable(dna, Phaser.Physics.ARCADE);
+      dnaComp.add(dna);
+
+      this._col++;
+
+      game.time.events.add(Phaser.Timer.SECOND * 0.5, this.addNextNucleotide,
+        this);
+    }
   };
 
   function preload() {
@@ -96,16 +111,14 @@
     if (!nrtiMoving) {
 
       if (game.time.now > nextFire && game.input.activePointer.isDown) {
-        var allChosen = true;
-
         if (nrti.data.nucleobaseType !== 'placeholder') {
-
-          game.physics.arcade.moveToXY(nrti, game.input.x, game.input.y, 500);
+          moveNRTI(game.input.x, game.input.y);
         }
       }
     }
 
     game.physics.arcade.overlap(nrti, activeRow, overlapHandler, null, this);
+    game.physics.arcade.overlap(nrti, dnaComp, dnaOverlapHandler, null, this);
 
     if (!matched) {
       checkMatches();
@@ -127,6 +140,11 @@
     if (matchedBase(rna, nucleotide)) {
       nucleotide.data.matched = true;
     }
+  }
+
+  function dnaOverlapHandler(dna, nrti) {
+    //console.log("collision");
+    resetNRTI();
   }
 
   function rnaOnDown(sprite) {
@@ -185,8 +203,7 @@
         matched = true;
       }
       else {
-        nrti.destroy();
-        createStartNRTI();
+        resetNRTI();
       }
     }
   }
@@ -202,7 +219,7 @@
   }
 
   function moveNRTI(x, y) {
-    moveNRTI(game.input.x, game.input.y);
+    game.physics.arcade.moveToXY(nrti, x, y, 500);
     nrtiMoving = true;
   }
 
@@ -250,9 +267,9 @@
       var x = computeXFromColumn(i);
       var nuc = nucFac.createRandomNucleobase({ x: x, y: height });
       row.add(nuc);
-      game.physics.enable(row, Phaser.Physics.ARCADE);
-      row.setAll('body.immovable', true);
     }
+
+    game.physics.enable(row, Phaser.Physics.ARCADE);
 
     return row;
   }
@@ -263,7 +280,14 @@
     nrti = nucFac.createRandomNucleobase(
         { x: halfwayAcrossScreen, y: 580 });
     nrti.enableBody = true;
+    nrti.events.onInputDown.add(nrtiOnDown, this);
     game.physics.enable(nrti, Phaser.Physics.ARCADE);
+  }
+
+  function resetNRTI() {
+    stopMovingNRTI();
+    nrti.kill();
+    createStartNRTI();
   }
 
   function computeXFromColumn(col) {
