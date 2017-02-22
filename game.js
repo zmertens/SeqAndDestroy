@@ -86,6 +86,10 @@
     rt.activate();
 
     nrtiMan.createNRTI();
+
+    game.time.events.loop(Phaser.Timer.SECOND * 5, function() {
+      addRow();
+    });
   }
 
   function update() {
@@ -145,6 +149,15 @@
     nrtiMan.resetNRTI();
     rowMan.nextRow();
     matched = false;
+  }
+
+  function addRow() {
+    rowMan.addRow();
+    rt.shiftDown();
+
+    if (matched) {
+      nrtiMan.getNRTI().y += spriteHeight;
+    }
   }
 
   function stageClicked(sprite, pointer) {

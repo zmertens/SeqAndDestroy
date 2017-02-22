@@ -23,11 +23,11 @@ var rowManager = (function() {
     this._elementConstructor = options.elementConstructor;
 
     this._rows = [];
-    for (var i = 0; i < options.rowsCount; i++) {
+    for (var i = options.rowsCount - 1; i >= 0;  i--) {
       var rowHeight = this.computeYFromRow(i);
       this._rows.push(this._createRow(rowHeight));
     }
-    this._activeRowIndex = this._rows.length - 1;
+    this._activeRowIndex = 0;
     this._activeRow = this._rows[this._activeRowIndex];
   };
 
@@ -63,10 +63,22 @@ var rowManager = (function() {
 
   RowManager.prototype.nextRow = function() {
     this._activeRow.destroy();
-    this._activeRowIndex--;
-    if (this._activeRowIndex >= 0) {
+    this._activeRowIndex++;
+    if (this._activeRowIndex < this._rows.length) {
       this._activeRow = this._rows[this._activeRowIndex];
     }
+  };
+
+  RowManager.prototype.addRow = function() {
+    // move all rows down
+    this._rows.forEach(function(row) {
+      row.forEachAlive(function(element) {
+        element.y += this._rowHeight;
+      }, this);
+    }, this);
+
+    var rowHeight = this.computeYFromRow(0);
+    this._rows.push(this._createRow(rowHeight));
   };
 
   return {

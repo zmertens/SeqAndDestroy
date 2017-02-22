@@ -57,7 +57,11 @@ var reverseTranscriptase = (function() {
       }
     }
     else {
+      this._dnaComp.destroy();
+      this._dnaComp = this._game.add.group();
       this._col = 0;
+
+      this._blockedCallback();
     }
 
     this._game.time.events.add(Phaser.Timer.SECOND * 0.5,
@@ -66,6 +70,12 @@ var reverseTranscriptase = (function() {
 
   ReverseTranscriptase.prototype.getComplementStrand = function() {
     return this._dnaComp;
+  };
+
+  ReverseTranscriptase.prototype.shiftDown = function() {
+    this.getComplementStrand().forEach(function(dna) {
+      dna.y += this._rowMan.getRowHeight();
+    }, this);
   };
 
   return {
