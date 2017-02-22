@@ -128,8 +128,20 @@ var nucleobases = (function() {
     nuc.tint = options.color;
   };
 
+  var compMap = {
+    'adenine': 'uracil',
+    'cytosine': 'guanine',
+    'guanine': 'cytosine',
+    'uracil': 'adenine'
+  };
+
+  var rnaComplement = function(rna) {
+    return compMap[rna];
+  };
+
   return {
-    createNucleobaseFactory: createNucleobaseFactory
+    createNucleobaseFactory: createNucleobaseFactory,
+    rnaComplement: rnaComplement
   };
 
 })();
