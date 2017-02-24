@@ -126,6 +126,7 @@ var nrtiManager = (function() {
   NRTIManager.prototype._setCommonSettings = function(nrti) {
     // flip vertically
     nrti.scale.y *= -1;
+    nucleobases.unflipLetter({ nucleobase: nrti }); 
 
     nrti.enableBody = true;
     this._game.physics.enable(nrti, Phaser.Physics.ARCADE);

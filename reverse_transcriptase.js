@@ -52,6 +52,8 @@ var reverseTranscriptase = (function() {
         // flip vertically
         dna.scale.y *= -1;
 
+        nucleobases.unflipLetter({ nucleobase: dna });
+
         dna.enableBody = true;
         this._game.physics.enable(dna, Phaser.Physics.ARCADE);
         this._dnaComp.add(dna);
