@@ -26,6 +26,20 @@ var nucleobases = (function() {
     return new NucleobaseFactory(options);
   };
 
+  var rnaComplement = function(rna) {
+    return compMap[rna];
+  };
+
+  // TODO: Pretty hacky
+  var unflipLetter = function(options) {
+    if (options === undefined) throw "no options";
+    if (options.nucleobase === undefined) throw "no nucleobase";
+
+    var letter = options.nucleobase.getChildAt(0);
+    letter.scale.y *= -1;
+    letter.y += letter.height/5;
+  };
+
   var NucleobaseFactory = function(options) {
     if (options === undefined) throw "NucleobaseFactory: no options";
     if (options.game === undefined) throw "NucleobaseFactory: no game";
@@ -88,16 +102,25 @@ var nucleobases = (function() {
     nuc.tint = colors[options.type];
     nuc.data.nucleobaseType = options.type;
 
-    return nuc;
-  };
+    var letter = options.type[0].toUpperCase();
+    var textStyle = {
+      font: "24px Courier New",
+      fill: "#000000",
+      align: "center"
+    };
+    var textOverlay = this._game.add.text(0, -this._spriteHeight/10, letter,
+      textStyle);
+    textOverlay.anchor.set(0.5);
 
-  var rnaComplement = function(rna) {
-    return compMap[rna];
+    nuc.addChild(textOverlay);
+
+    return nuc;
   };
 
   return {
     createNucleobaseFactory: createNucleobaseFactory,
-    rnaComplement: rnaComplement
+    rnaComplement: rnaComplement,
+    unflipLetter: unflipLetter
   };
 
 })();
