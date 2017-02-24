@@ -24,30 +24,26 @@ var nucleobases = (function() {
 
   NucleobaseFactory.prototype.createAdenine = function(options) {
     options.color = colors[0];
-    var adenine = this._createPurine(options);
-    adenine.data.nucleobaseType = 'adenine';
-    return adenine;
+    options.type = 'adenine';
+    return this._createNucleobase(options);
   };
 
   NucleobaseFactory.prototype.createCytosine = function(options) {
     options.color = colors[1];
-    var cytosine = this._createPyrimidine(options);
-    cytosine.data.nucleobaseType = 'cytosine';
-    return cytosine;
+    options.type = 'cytosine';
+    return this._createNucleobase(options);
   };
 
   NucleobaseFactory.prototype.createGuanine = function(options) {
     options.color = colors[2];
-    var guanine = this._createPurine(options);
-    guanine.data.nucleobaseType = 'guanine';
-    return guanine;
+    options.type = 'guanine';
+    return this._createNucleobase(options);
   };
 
   NucleobaseFactory.prototype.createUracil = function(options) {
     options.color = colors[3];
-    var uracil = this._createPyrimidine(options);
-    uracil.data.nucleobaseType = 'uracil';
-    return uracil;
+    options.type = 'uracil';
+    return this._createNucleobase(options);
   };
 
   NucleobaseFactory.prototype.createRandomNucleobase = function(options) {
@@ -126,6 +122,23 @@ var nucleobases = (function() {
     nuc.width = this._spriteWidth;
     nuc.height = this._spriteHeight;
     nuc.tint = options.color;
+  };
+
+  NucleobaseFactory.prototype._createNucleobase = function(options) {
+    if (options === undefined) throw "_createNucleobase: no options";
+    if (options.x === undefined) throw "_createNucleobase: no x";
+    if (options.y === undefined) throw "_createNucleobase: no y";
+    if (options.color === undefined) throw "_createNucleobase: no color";
+    if (options.type === undefined) throw "_createNucleobase: no type";
+
+    var nuc = this._game.add.sprite(options.x, options.y, options.type);
+    nuc.anchor.set(0.5);
+    nuc.width = this._spriteWidth;
+    nuc.height = this._spriteHeight;
+    nuc.tint = options.color;
+    nuc.data.nucleobaseType = options.type;
+
+    return nuc;
   };
 
   var compMap = {

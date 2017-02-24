@@ -39,7 +39,7 @@ var reverseTranscriptase = (function() {
       }
       else {
         var x = this._rowMan.computeXFromColumn(this._col);
-        var y = rna.y + (this._rowMan.getRowHeight() / 2);
+        var y = rna.y + (2/3)*(this._rowMan.getRowHeight());
         var comp = nucleobases.rnaComplement(rna.data.nucleobaseType);
 
         var compOptions = {
@@ -48,6 +48,10 @@ var reverseTranscriptase = (function() {
           y: y
         };
         var dna = this._nucFac.createNucleobaseFromType(compOptions);
+
+        // flip vertically
+        dna.scale.y *= -1;
+
         dna.enableBody = true;
         this._game.physics.enable(dna, Phaser.Physics.ARCADE);
         this._dnaComp.add(dna);
