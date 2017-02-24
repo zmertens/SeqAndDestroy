@@ -22,7 +22,8 @@
   var bacteriaFilter;
   var bacteriaSprite;
 
-  var game = new Phaser.Game(gameWidth, gameHeight, Phaser.WEBGL,
+  var game = new Phaser.Game(gameWidth * window.devicePixelRatio, 
+    gameHeight * window.devicePixelRatio, Phaser.WEBGL,
     'SeqAndDestroy', 
 	  { preload: preload, create: create, update: update, render: render });
 
@@ -38,6 +39,11 @@
     game.stage.backgroundColor = "#333333";
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
+    game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
+    game.scale.refresh();
+    
+    var mothership = game.add.group();
+
     bacteriaFilter = new Phaser.Filter(game, null, game.cache.getShader('bacteria'));
     bacteriaFilter.setResolution(gameWidth, gameHeight);
     bacteriaSprite = game.add.sprite();
@@ -46,6 +52,8 @@
     bacteriaSprite.filters = [bacteriaFilter];
     bacteriaSprite.inputEnabled = true;
     bacteriaSprite.events.onInputDown.add(stageClicked, this);
+
+    mothership.add(bacteriaSprite);
 
     var factoryOptions = {
       game: game,
@@ -161,7 +169,7 @@
   }
 
   function stageClicked(sprite, pointer) {
-    nrtiMan.moveNRTI(pointer.clientX, pointer.clientY);
+    nrtiMan.moveNRTI(pointer.position.x, pointer.position.y);
   }
 
   function floatCloseEnough(a, b) {
