@@ -22,6 +22,7 @@ var nrtiManager = (function() {
     this._nextFire = this._game.time.now + this._fireRate;
     this._columnWidth = options.columnWidth;
     this._rowHeight = options.rowHeight;
+    this._matched = false;
 
     var halfwayAcrossScreen = options.gameWidth/2;
     this._nrtiPos = {
@@ -31,7 +32,19 @@ var nrtiManager = (function() {
 
   NRTIManager.prototype.createNRTI = function() {
 
-    this._nrti = this._nucFac.createRandomNucleobase(this._nrtiPos);
+    if (!this._nrti) {
+      // use adenine the first time
+      this._nrti = this._nucFac.createAdenine(this._nrtiPos);
+    }
+    else {
+      // reuse whatever the player had last fired
+      var options = {
+        x: this._nrtiPos.x,
+        y: this._nrtiPos.y,
+        type: this._nrti.data.nucleobaseType
+      };
+      this._nrti = this._nucFac.createNucleobaseWithType(options);
+    }
     this._setCommonSettings(this._nrti);
   }
 
@@ -63,10 +76,18 @@ var nrtiManager = (function() {
     this._snapToGrid();
   };
 
+  NRTIManager.prototype.getMatched = function() {
+    return this._matched;
+  };
+
+  NRTIManager.prototype.setMatched = function(matched) {
+    this._matched = matched;
+  };
+
 
   // Cycles through the available rna
   NRTIManager.prototype._nrtiOnDown = function(sprite) {
-    if (!this._nrtiMoving) {
+    if (!this._nrtiMoving && !this._matched) {
       this._nextFire = this._game.time.now + this._fireRate;
 
       // Once you've switched away from the placeholder, there's no way to get
