@@ -103,6 +103,9 @@ var nrtiManager = (function() {
   };
 
   NRTIManager.prototype._setCommonSettings = function(nrti) {
+    // flip vertically
+    nrti.scale.y *= -1;
+
     nrti.enableBody = true;
     this._game.physics.enable(nrti, Phaser.Physics.ARCADE);
     nrti.inputEnabled = true;
@@ -116,7 +119,9 @@ var nrtiManager = (function() {
     var gridCorrection = this._computeGridCorrection(this.getNRTI());
 
     var x = gridCorrection.x - this._columnWidth/2;
-    var y = gridCorrection.y - this._rowHeight;
+    // TODO: .84 is a magic number reached by trial and error. Figure out the
+    // proper way to calculate it.
+    var y = gridCorrection.y - (.84)*this._rowHeight;// + this._rowHeight;
 
     this.getNRTI().body.reset(x, y);
 
