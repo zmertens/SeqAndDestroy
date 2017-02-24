@@ -12,7 +12,6 @@
   var rowsCount = Math.floor((gameHeight / spriteHeight) / 2);
 
   var nucFac;
-  var matched = false;
 
   var rt = null;
 
@@ -104,7 +103,7 @@
     game.physics.arcade.overlap(nrtiMan.getNRTI(), rt.getComplementStrand(),
       dnaOverlapHandler, null, this);
 
-    if (!matched) {
+    if (!nrtiMan.getMatched()) {
       checkMatches();
     }
   }
@@ -140,7 +139,7 @@
       }
 
       if (matchedBase(nrtiMan.getNRTI(), nearestRNA)) {
-        matched = true;
+        nrtiMan.setMatched(true);
         nearestRNA.data.matched = true;
       }
       else {
@@ -152,14 +151,14 @@
   function rtBlockedCallback() {
     nrtiMan.resetNRTI();
     rowMan.nextRow();
-    matched = false;
+    nrtiMan.setMatched(false);
   }
 
   function addRow() {
     rowMan.addRow();
     rt.shiftDown();
 
-    if (matched) {
+    if (nrtiMan.getMatched()) {
       nrtiMan.getNRTI().y += spriteHeight;
     }
   }
