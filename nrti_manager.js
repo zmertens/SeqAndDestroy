@@ -43,7 +43,7 @@ var nrtiManager = (function() {
         y: this._nrtiPos.y,
         type: this._nrti.data.nucleobaseType
       };
-      this._nrti = this._nucFac.createNucleobaseFromType(options);
+      this._nrti = this._nucFac.createNucleobaseWithType(options);
     }
     this._setCommonSettings(this._nrti);
   }

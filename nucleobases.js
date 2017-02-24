@@ -1,5 +1,27 @@
 var nucleobases = (function() {
 
+  var nucleobaseTypes = [
+    'adenine',
+    'cytosine',
+    'guanine',
+    'uracil'
+  ];
+
+  // from colorbrewer 8-class Set 1. red, green, blue, yellow
+  var colors = {
+    'adenine': 0xe41a1c,
+    'cytosine': 0x4daf4a,
+    'guanine': 0x377eb8,
+    'uracil': 0xffff33
+  };
+
+  var compMap = {
+    'adenine': 'uracil',
+    'cytosine': 'guanine',
+    'guanine': 'cytosine',
+    'uracil': 'adenine'
+  };
+
   var createNucleobaseFactory = function(options) {
     return new NucleobaseFactory(options);
   };
@@ -19,133 +41,54 @@ var nucleobases = (function() {
     this._spriteHeight = options.spriteHeight;
   };
 
-  // from colorbrewer. red, blue, green, purple
-  var colors = [0xe41a1c, 0x377eb8, 0x4daf4a, 0x984ea3];
-
+  
   NucleobaseFactory.prototype.createAdenine = function(options) {
-    options.color = colors[0];
     options.type = 'adenine';
-    return this._createNucleobase(options);
+    return this.createNucleobaseWithType(options);
   };
 
   NucleobaseFactory.prototype.createCytosine = function(options) {
-    options.color = colors[1];
     options.type = 'cytosine';
-    return this._createNucleobase(options);
+    return this.createNucleobaseWithType(options);
   };
 
   NucleobaseFactory.prototype.createGuanine = function(options) {
-    options.color = colors[2];
     options.type = 'guanine';
-    return this._createNucleobase(options);
+    return this.createNucleobaseWithType(options);
   };
 
   NucleobaseFactory.prototype.createUracil = function(options) {
-    options.color = colors[3];
     options.type = 'uracil';
-    return this._createNucleobase(options);
+    return this.createNucleobaseWithType(options);
   };
 
   NucleobaseFactory.prototype.createRandomNucleobase = function(options) {
     var index = Math.floor(Math.random() * 4);
 
-    if (index === 0) {
-      return this.createAdenine(options);
-    }
-    else if (index === 1) {
-      return this.createCytosine(options);
-    }
-    else if (index === 2) {
-      return this.createGuanine(options);
-    }
-    else if (index === 3) {
-      return this.createUracil(options);
-    }
-    else {
-      throw "Invalid index";
-    }
+    options.type = nucleobaseTypes[index];
+    return this.createNucleobaseWithType(options);
   };
 
-  NucleobaseFactory.prototype.createNucleobaseFromType = function(options) {
-    if (options.type === undefined) throw "createNucleobaseFromType: no type";
+  NucleobaseFactory.prototype.createNucleobaseWithType = function(options) {
+    if (options.type === undefined) throw "createNucleobaseWithType: no type";
 
-    if (options.type === 'adenine') {
-      return this.createAdenine(options);
-    }
-    else if (options.type === 'cytosine') {
-      return this.createCytosine(options);
-    }
-    else if (options.type === 'guanine') {
-      return this.createGuanine(options);
-    }
-    else if (options.type === 'uracil') {
-      return this.createUracil(options);
-    }
-    else {
-      throw "Invalid index";
-    }
-  };
-
-  NucleobaseFactory.prototype.createPlaceholderNucleobase = function(options) {
-    options.color = 0x999999;
-    var placeholder = this._createPyrimidine(options);
-    placeholder.data.nucleobaseType = 'placeholder';
-    return placeholder;
-  };
-
-  NucleobaseFactory.prototype._createPurine = function(options) {
-    if (options === undefined) throw "_createPurine: no options";
-    if (options.x === undefined) throw "_createPurine: no x";
-    if (options.y === undefined) throw "_createPurine: no y";
-    if (options.color === undefined) throw "_createPurine: no color";
-
-    var purine = this._game.add.sprite(options.x, options.y, 'square');
-    this._setCommonSettings(options, purine);
-
-    return purine;
-  };
-
-  NucleobaseFactory.prototype._createPyrimidine = function(options) {
-    if (options === undefined) throw "_createPyrimidine: no options";
-    if (options.x === undefined) throw "_createPyrimidine: no x";
-    if (options.y === undefined) throw "_createPyrimidine: no y";
-    if (options.color === undefined) throw "_createPyrimidine: no color";
-
-    var pyrimidine = this._game.add.sprite(options.x, options.y, 'ball');
-    this._setCommonSettings(options, pyrimidine);
-
-    return pyrimidine;
-  };
-
-  NucleobaseFactory.prototype._setCommonSettings = function(options, nuc) {
-    nuc.anchor.set(0.5);
-    nuc.width = this._spriteWidth;
-    nuc.height = this._spriteHeight;
-    nuc.tint = options.color;
+    return this._createNucleobase(options);
   };
 
   NucleobaseFactory.prototype._createNucleobase = function(options) {
     if (options === undefined) throw "_createNucleobase: no options";
     if (options.x === undefined) throw "_createNucleobase: no x";
     if (options.y === undefined) throw "_createNucleobase: no y";
-    if (options.color === undefined) throw "_createNucleobase: no color";
     if (options.type === undefined) throw "_createNucleobase: no type";
 
     var nuc = this._game.add.sprite(options.x, options.y, options.type);
     nuc.anchor.set(0.5);
     nuc.width = this._spriteWidth;
     nuc.height = this._spriteHeight;
-    nuc.tint = options.color;
+    nuc.tint = colors[options.type];
     nuc.data.nucleobaseType = options.type;
 
     return nuc;
-  };
-
-  var compMap = {
-    'adenine': 'uracil',
-    'cytosine': 'guanine',
-    'guanine': 'cytosine',
-    'uracil': 'adenine'
   };
 
   var rnaComplement = function(rna) {

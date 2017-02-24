@@ -47,7 +47,7 @@ var reverseTranscriptase = (function() {
           x: x,
           y: y
         };
-        var dna = this._nucFac.createNucleobaseFromType(compOptions);
+        var dna = this._nucFac.createNucleobaseWithType(compOptions);
 
         // flip vertically
         dna.scale.y *= -1;
