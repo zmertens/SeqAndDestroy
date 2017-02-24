@@ -132,6 +132,9 @@ var nrtiManager = (function() {
     this._game.physics.enable(nrti, Phaser.Physics.ARCADE);
     nrti.inputEnabled = true;
     nrti.events.onInputDown.add(this._nrtiOnDown, this);
+
+    nrti.body.collideWorldBounds = true;
+    nrti.body.bounce.set(1);
   };
 
   NRTIManager.prototype._snapToGrid = function() {
