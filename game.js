@@ -7,7 +7,7 @@
   var columnsCount = 20;
 
   var spriteWidth = gameWidth / columnsCount;
-  var spriteHeight = spriteWidth;
+  var spriteHeight = 1.5 * spriteWidth;
 
   var rowsCount = Math.floor((gameHeight / spriteHeight) / 2);
 
@@ -28,6 +28,10 @@
 	  { preload: preload, create: create, update: update, render: render });
 
   function preload() {
+    game.load.image('adenine', 'assets/adenine.png');
+    game.load.image('cytosine', 'assets/cytosine.png');
+    game.load.image('guanine', 'assets/guanine.png');
+    game.load.image('uracil', 'assets/uracil.png');
     game.load.image('ball', 'assets/ball_grayscale.png');
     game.load.image('square', 'assets/block_solid.png');
     game.load.shader('bacteria', 'assets/bacteria.frag');
