@@ -31,18 +31,26 @@ var reverseTranscriptase = (function() {
     this._active = false;
   };
 
+  ReverseTranscriptase.prototype.killRow = function() {
+    this._dnaComp.destroy();
+    this._dnaComp = this._game.add.group();
+    this._col = 0;
+
+    this._blockedCallback();
+  };
+
   ReverseTranscriptase.prototype.addNextNucleotide = function() {
 
     if (this._col !== this._rowMan.getActiveRow().length) {
       var rna = this._rowMan.getActiveRow().getAt(this._col); 
-      if (rna.data.matched) {
-        this._dnaComp.destroy();
-        this._dnaComp = this._game.add.group();
-        this._col = 0;
+      //if (rna.data.matched) {
+      //  this._dnaComp.destroy();
+      //  this._dnaComp = this._game.add.group();
+      //  this._col = 0;
 
-        this._blockedCallback();
-      }
-      else {
+      //  this._blockedCallback();
+      //}
+      //else {
         var x = this._rowMan.computeXFromColumn(this._col);
         var y = rna.y + (2/3)*(this._rowMan.getRowHeight());
         var comp = nucleobases.rnaComplement(rna.data.nucleobaseType);
@@ -65,7 +73,7 @@ var reverseTranscriptase = (function() {
 
         this._col++;
 
-      }
+      //}
     }
     else {
       this._dnaComp.destroy();

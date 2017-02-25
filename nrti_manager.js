@@ -33,19 +33,20 @@ var nrtiManager = (function() {
 
   NRTIManager.prototype.createNRTI = function() {
 
-    if (!this._nrti) {
-      // use adenine the first time
-      this._nrti = this._nucFac.createAdenine(this._nrtiPos);
-    }
-    else {
-      // reuse whatever the player had last fired
-      var options = {
-        x: this._nrtiPos.x,
-        y: this._nrtiPos.y,
-        type: this._nrti.data.nucleobaseType
-      };
-      this._nrti = this._nucFac.createNucleobaseWithType(options);
-    }
+    //if (!this._nrti) {
+    //  // use adenine the first time
+    //  this._nrti = this._nucFac.createAdenine(this._nrtiPos);
+    //}
+    //else {
+    //  // reuse whatever the player had last fired
+    //  var options = {
+    //    x: this._nrtiPos.x,
+    //    y: this._nrtiPos.y,
+    //    type: this._nrti.data.nucleobaseType
+    //  };
+    //  this._nrti = this._nucFac.createNucleobaseWithType(options);
+    //}
+    this._nrti = this._nucFac.createRandomNucleobase(this._nrtiPos);
     this._setCommonSettings(this._nrti);
   }
 
