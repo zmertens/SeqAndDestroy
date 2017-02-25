@@ -16,6 +16,7 @@ var nrtiManager = (function() {
 
     this._game = options.game;
     this._nucFac = options.nucFac;
+    this._gameHeight = options.gameHeight;
     this._snapped = false;
     this._nrtiMoving = false;
     this._fireRate = 100;
@@ -66,7 +67,11 @@ var nrtiManager = (function() {
 
   NRTIManager.prototype.moveNRTI = function(x, y) {
     if (!this._nrtiMoving) {
-      this._game.physics.arcade.moveToXY(this._nrti, x, y, 1000);
+      var pixelsPerSecond = this._gameHeight * config.speedMultipler;
+      var distanceToPointer = this._game.physics.arcade.distanceToPointer(
+        this._nrti);
+      console.log(distanceToPointer);
+      this._game.physics.arcade.moveToXY(this._nrti, x, y, pixelsPerSecond);
       this._nrtiMoving = true;
     }
   };

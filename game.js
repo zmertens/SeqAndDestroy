@@ -8,4 +8,5 @@
   game.state.add('homeState', homeState);
   game.state.add('playState', playState);
   game.state.start('preloadState');
+
 })();

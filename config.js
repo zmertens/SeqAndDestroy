@@ -44,8 +44,9 @@ var config = (function() {
   `;
 
   return {
-    gameWidth: 800,
-    gameHeight: 600,
+    gameWidth: 1920,
+    gameHeight: 1080,
+    speedMultipler: 1.5,
     bacteriaShaderStr: bacteriaShaderStr
   };
 })();

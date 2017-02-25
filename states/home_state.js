@@ -1,6 +1,11 @@
 var homeState = (function() {
 
   var create = function () {
+
+    this.time.advancedTiming = true;
+    this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+    this.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
+
     bacteriaFilter = new Phaser.Filter(this, null, config.bacteriaShaderStr);
     bacteriaFilter.setResolution(config.gameWidth, config.gameHeight);
     bacteriaSprite = this.add.sprite();

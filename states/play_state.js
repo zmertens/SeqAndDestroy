@@ -5,8 +5,8 @@ var playState = (function() {
   var spriteWidth = config.gameWidth / columnsCount;
   var spriteHeight = 1.5 * spriteWidth;
 
-  //var rowsCount = Math.floor((config.gameHeight / spriteHeight) / 2);
-  var rowsCount = 1;
+  var rowsCount = Math.floor((config.gameHeight / spriteHeight) / 2);
+  //var rowsCount = 1;
 
   var nucFac;
 
@@ -91,6 +91,10 @@ var playState = (function() {
     }
   }
 
+  function render() {
+    this.game.debug.text(this.time.fps, 10, 10, '#ffffff');
+  }
+
   function gridOverlapHandler(nucleotide, rna) {
     nrtiMan.gridOverlapHandler();
   }
@@ -170,7 +174,7 @@ var playState = (function() {
   }
 
   function stageClicked(sprite, pointer) {
-    nrtiMan.moveNRTI(pointer.clientX, pointer.clientY);
+    nrtiMan.moveNRTI(pointer.position.x, pointer.position.y);
   }
 
   function floatCloseEnough(a, b) {
@@ -179,6 +183,7 @@ var playState = (function() {
 
   return {
     create: create,
-    update: update
+    update: update,
+    render: render
   };
 })();
