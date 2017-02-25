@@ -5,8 +5,8 @@ var playState = (function() {
   var spriteWidth = config.gameWidth / columnsCount;
   var spriteHeight = 1.5 * spriteWidth;
 
-  //var rowsCount = Math.floor((config.gameHeight / spriteHeight) / 3);
-  var rowsCount = 5;
+  var rowsCount = Math.floor((config.gameHeight / spriteHeight) / 3);
+  //var rowsCount = 5;
 
   var nucFac;
 
