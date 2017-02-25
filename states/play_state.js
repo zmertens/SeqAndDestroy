@@ -5,8 +5,8 @@ var playState = (function() {
   var spriteWidth = config.gameWidth / columnsCount;
   var spriteHeight = 1.5 * spriteWidth;
 
-  var rowsCount = Math.floor((config.gameHeight / spriteHeight) / 3);
-  //var rowsCount = 1;
+  //var rowsCount = Math.floor((config.gameHeight / spriteHeight) / 3);
+  var rowsCount = 5;
 
   var nucFac;
 
@@ -20,6 +20,7 @@ var playState = (function() {
   var bacteriaSprite;
 
   var active = true;
+  var timer;
 
   function create() {
     this.stage.backgroundColor = "#333333";
@@ -75,7 +76,7 @@ var playState = (function() {
 
     nrtiMan.createNRTI();
 
-    this.game.time.events.loop(Phaser.Timer.SECOND * 5, addRow);
+    this.game.time.events.loop(Phaser.Timer.SECOND * 5, addRow.bind(this));
   }
 
   function update() {
@@ -170,7 +171,41 @@ var playState = (function() {
       if (nrtiMan.getMatched()) {
         nrtiMan.getNRTI().y += spriteHeight;
       }
+
+      var y = rowMan.getActiveRow().getAt(0).y; 
+      var maxY = config.gameHeight - 4*(spriteHeight/2);
+
+      if (y >= maxY) {
+        gameOver(this);
+      }
     }
+  }
+
+  function gameOver(game) {
+    //this.state.start('homeState');
+    var textOptions = {
+      font: '65px Arial',
+      align: 'center',
+      fill: '#ff8300'
+    }
+
+    rt.deactivate();
+    nrtiMan.destroyNRTI();
+    //game.time.events.stop();
+
+    var graphics = game.add.graphics();
+    graphics.beginFill(0x0F0F0F, 1);
+    graphics.drawCircle(game.world.centerX, game.world.centerY, 500);
+
+    var text = game.add.text(game.world.centerX, game.world.centerY,
+      "Game Over!", textOptions);
+    text.anchor.setTo(0.5);
+    //tame.time.events.resume();
+    game.time.events.add(Phaser.Timer.SECOND * 2, function() {
+      game.state.start('homeState');
+    }, this);
+
+
   }
 
   function stageClicked(sprite, pointer) {
