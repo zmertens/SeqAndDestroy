@@ -11,11 +11,11 @@ var reverseTranscriptase = (function() {
     if (options.nucFac === undefined) throw "no nucFac";
     if (options.rowManager === undefined) throw "no rowManger";
     if (options.nrtiManager === undefined) throw "no nrtiManager";
+    if (options.blockedCallback === undefined) throw "no blockedCallback";
 
     this._game = options.game;
     this._nucFac = options.nucFac;
     this._rowMan = options.rowManager;
-    this._nrtiMan = options.nrtiManager;
     this._col = 0;
     this._dnaComp = this._game.add.group();
     this._game.physics.enable(this._dnaComp, Phaser.Physics.ARCADE);
@@ -23,7 +23,12 @@ var reverseTranscriptase = (function() {
   };
 
   ReverseTranscriptase.prototype.activate = function() {
+    this._active = true;
     this.addNextNucleotide();
+  };
+
+  ReverseTranscriptase.prototype.deactivate = function() {
+    this._active = false;
   };
 
   ReverseTranscriptase.prototype.addNextNucleotide = function() {
@@ -70,8 +75,10 @@ var reverseTranscriptase = (function() {
       this._blockedCallback();
     }
 
-    this._game.time.events.add(Phaser.Timer.SECOND * 0.5,
-      this.addNextNucleotide, this);
+    if (this._active) {
+      this._game.time.events.add(Phaser.Timer.SECOND * 0.5,
+        this.addNextNucleotide, this);
+    }
   };
 
   ReverseTranscriptase.prototype.getComplementStrand = function() {

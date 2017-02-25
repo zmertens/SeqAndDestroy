@@ -15,12 +15,14 @@ var rowManager = (function() {
     if (options.elementConstructor === undefined) {
       throw "no elementConstructor";
     }
+    if (options.gameWinCallback === undefined) throw "no gameWinCallback";
 
     this._game = options.game;
     this._columnsCount = options.columnsCount;
     this._columnWidth = options.columnWidth;
     this._rowHeight = options.rowHeight;
     this._elementConstructor = options.elementConstructor;
+    this._gameWinCallback = options.gameWinCallback;
 
     this._rows = [];
     for (var i = options.rowsCount - 1; i >= 0;  i--) {
@@ -66,6 +68,9 @@ var rowManager = (function() {
     this._activeRowIndex++;
     if (this._activeRowIndex < this._rows.length) {
       this._activeRow = this._rows[this._activeRowIndex];
+    }
+    else if (this._activeRowIndex === this._rows.length) {
+      this._gameWinCallback(this._game);
     }
   };
 

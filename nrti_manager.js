@@ -58,6 +58,12 @@ var nrtiManager = (function() {
     this.createNRTI();
   };
 
+  NRTIManager.prototype.destroyNRTI = function() {
+    if (this._nrti) {
+      this._nrti.kill();
+    }
+  };
+
   NRTIManager.prototype.moveNRTI = function(x, y) {
     if (!this._nrtiMoving) {
       this._game.physics.arcade.moveToXY(this._nrti, x, y, 1000);
