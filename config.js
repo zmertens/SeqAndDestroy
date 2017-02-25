@@ -44,8 +44,8 @@ var config = (function() {
   `;
 
   return {
-    gameWidth: 1920,
-    gameHeight: 1080,
+    gameWidth: 1080,
+    gameHeight: 1920,
     speedMultipler: 2.5,
     bacteriaShaderStr: bacteriaShaderStr
   };
