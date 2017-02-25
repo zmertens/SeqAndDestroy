@@ -1,8 +1,8 @@
 (function() {
   "use strict";
 
-  var gameWidth = 800;
-  var gameHeight = 600;
+  var gameWidth = 1920;
+  var gameHeight = 1080;
 
   var columnsCount = 20;
 
@@ -22,8 +22,7 @@
   var bacteriaFilter;
   var bacteriaSprite;
 
-  var game = new Phaser.Game(gameWidth * window.devicePixelRatio, 
-    gameHeight * window.devicePixelRatio, Phaser.WEBGL,
+  var game = new Phaser.Game(gameWidth, gameHeight, Phaser.WEBGL,
     'SeqAndDestroy', 
 	  { preload: preload, create: create, update: update, render: render });
 
@@ -39,8 +38,8 @@
     game.stage.backgroundColor = "#333333";
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
-    game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
-    game.scale.refresh();
+    game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+    game.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
     
     var mothership = game.add.group();
 
