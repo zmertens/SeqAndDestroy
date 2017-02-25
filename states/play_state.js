@@ -1,26 +1,23 @@
 var playState = (function() {
 
   var columnsCount = 20;
-
   var spriteWidth = config.gameWidth / columnsCount;
   var spriteHeight = 1.5 * spriteWidth;
 
-  var rowsCount = Math.floor((config.gameHeight / spriteHeight) / 3);
-  //var rowsCount = 5;
-
+  //var rowsCount = Math.floor((config.gameHeight / spriteHeight) / 3);
+  var rowsCount = 1;
   var nucFac;
-
   var rt = null;
-
   var rowMan = null;
-
   var nrtiMan = null;
-
   var bacteriaFilter;
   var bacteriaSprite;
-
-  var active = true;
+  var active;
   var timer;
+
+  function init() {
+    active = true;
+  }
 
   function create() {
     this.stage.backgroundColor = "#333333";
@@ -146,21 +143,30 @@ var playState = (function() {
   function gameWinCallback(game) {
     active = false;
     var textOptions = {
-      font: '45px Arial',
+      font: '65px Arial',
       align: 'center',
       fill: '#ff8300'
     }
+
+    var graphics = game.add.graphics();
+    graphics.beginFill(0x0F0F0F, 1);
+    graphics.drawCircle(game.world.centerX, game.world.centerY, 500);
+
     var text = game.add.text(game.world.centerX, game.world.centerY,
-      "You Win! Tap to play again", textOptions);
+      "You Win!", textOptions);
     text.anchor.setTo(0.5);
 
     rt.deactivate();
     nrtiMan.destroyNRTI();
 
-    bacteriaSprite.events.onInputDown.removeAll();
-    bacteriaSprite.events.onInputDown.add(function() {
-      game.state.start('playState');
-    });
+    //bacteriaSprite.events.onInputDown.removeAll();
+    //bacteriaSprite.events.onInputDown.add(function() {
+    //  game.state.start('playState');
+    //});
+
+    game.time.events.add(Phaser.Timer.SECOND * 2, function() {
+      game.state.start('homeState');
+    }, this);
   }
 
   function addRow() {
@@ -217,6 +223,7 @@ var playState = (function() {
   }
 
   return {
+    init: init,
     create: create,
     update: update,
     render: render
