@@ -147,6 +147,7 @@ var nrtiManager = (function() {
 
     nrti.body.collideWorldBounds = true;
     nrti.body.bounce.set(1);
+    nrti.tint = 0xFFFFFF;
   };
 
   NRTIManager.prototype._snapToGrid = function() {
