@@ -26,7 +26,7 @@ var homeState = (function() {
     graphics.drawCircle(this.world.centerX, this.world.centerY, 500);
 
     var text = this.add.text(this.world.centerX, this.world.centerY,
-      "Tap to Start", textOptions);
+      "Tap to Play!", textOptions);
     text.anchor.setTo(0.5);
   };
 
