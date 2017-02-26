@@ -71,6 +71,11 @@ var playState = (function() {
     rt = reverseTranscriptase.createReverseTranscriptase(rtOptions);
     rt.activate();
 
+    var graphics = this.add.graphics();
+    graphics.beginFill(0xFF0000, 0.3);
+    //graphics.drawCircle(this.world.centerX, this.world.centerY, 500);
+    graphics.drawRect(0, maxY(), config.gameWidth, config.gameHeight);
+
     nrtiMan.createNRTI();
 
     this.game.time.events.loop(Phaser.Timer.SECOND * 5, addRow.bind(this));
@@ -179,13 +184,17 @@ var playState = (function() {
         nrtiMan.getNRTI().y += spriteHeight;
       }
 
-      var y = rowMan.getActiveRow().getAt(0).y; 
-      var maxY = config.gameHeight - 4*(spriteHeight/2);
+      var y = rowMan.getActiveRow().getAt(0).y + spriteHeight; 
 
-      if (y >= maxY) {
+      if (y >= maxY()) {
         gameOver(this);
       }
     }
+  }
+
+  function maxY() {
+    var maxY = config.gameHeight - 4*(spriteHeight/2);
+    return maxY;
   }
 
   function gameOver(game) {
