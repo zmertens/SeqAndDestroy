@@ -16,6 +16,7 @@ var nrtiManager = (function() {
 
     this._game = options.game;
     this._nucFac = options.nucFac;
+    this._gameHeight = options.gameHeight;
     this._snapped = false;
     this._nrtiMoving = false;
     this._fireRate = 100;
@@ -32,19 +33,20 @@ var nrtiManager = (function() {
 
   NRTIManager.prototype.createNRTI = function() {
 
-    if (!this._nrti) {
-      // use adenine the first time
-      this._nrti = this._nucFac.createAdenine(this._nrtiPos);
-    }
-    else {
-      // reuse whatever the player had last fired
-      var options = {
-        x: this._nrtiPos.x,
-        y: this._nrtiPos.y,
-        type: this._nrti.data.nucleobaseType
-      };
-      this._nrti = this._nucFac.createNucleobaseWithType(options);
-    }
+    //if (!this._nrti) {
+    //  // use adenine the first time
+    //  this._nrti = this._nucFac.createAdenine(this._nrtiPos);
+    //}
+    //else {
+    //  // reuse whatever the player had last fired
+    //  var options = {
+    //    x: this._nrtiPos.x,
+    //    y: this._nrtiPos.y,
+    //    type: this._nrti.data.nucleobaseType
+    //  };
+    //  this._nrti = this._nucFac.createNucleobaseWithType(options);
+    //}
+    this._nrti = this._nucFac.createRandomNucleobase(this._nrtiPos);
     this._setCommonSettings(this._nrti);
   }
 
@@ -58,9 +60,19 @@ var nrtiManager = (function() {
     this.createNRTI();
   };
 
+  NRTIManager.prototype.destroyNRTI = function() {
+    if (this._nrti) {
+      this._nrti.kill();
+    }
+  };
+
   NRTIManager.prototype.moveNRTI = function(x, y) {
     if (!this._nrtiMoving) {
-      this._game.physics.arcade.moveToXY(this._nrti, x, y, 1000);
+      var pixelsPerSecond = this._gameHeight * config.speedMultipler;
+      var distanceToPointer = this._game.physics.arcade.distanceToPointer(
+        this._nrti);
+      console.log(distanceToPointer);
+      this._game.physics.arcade.moveToXY(this._nrti, x, y, pixelsPerSecond);
       this._nrtiMoving = true;
     }
   };
@@ -135,6 +147,7 @@ var nrtiManager = (function() {
 
     nrti.body.collideWorldBounds = true;
     nrti.body.bounce.set(1);
+    nrti.tint = 0xFFFFFF;
   };
 
   NRTIManager.prototype._snapToGrid = function() {
