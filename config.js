@@ -36,10 +36,24 @@ var config = (function() {
     }
 
     void main() {
+        vec4 finalColor = vec4(0, 1.0, 0, 1.0);
         vec2 uv = gl_FragCoord.xy / resolution.xy;
-        float t = fworley(uv * resolution.xy / 1500.0);
-        t *= exp(-length2(abs(0.7*uv - 1.0)));
-        gl_FragColor = vec4(t * vec3(0.1, 1.5*t, 1.2*t + pow(t, 0.5-t)), 1.0);
+        // float t = fworley(uv * resolution.xy / 1500.0);
+        // t *= exp(-length2(abs(0.7*uv - 1.0)));
+
+        if (uv.x > 0.5 && uv.y < 0.5)
+            finalColor.rgb = vec3(1.0, 0.0, 0.0);
+        else if (uv.x > 0.5 && uv.y > 0.5)
+            finalColor.rgb = vec3(0.0, 1.0, 0.0);
+        else if (uv.x < 0.5 && uv.y < 0.5)
+            finalColor.rgb = vec3(0.0, 0.0, 1.0);
+        else
+            finalColor.rgb = vec3(0.5, 0.5, 0.5);
+
+        // vec4 finalColor = vec4(t * vec3(0.1, 1.5*t, 1.2*t + pow(t, 0.5-t)), 1.0);
+
+
+        gl_FragColor = finalColor;
     }
   `;
 

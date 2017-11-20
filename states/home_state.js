@@ -21,16 +21,18 @@ var homeState = (function() {
       fill: '#ff8300'
     };
 
-    var graphics = this.add.graphics();
-    graphics.beginFill(0x0F0F0F, 1);
-    graphics.drawCircle(this.world.centerX, this.world.centerY, 500);
-
-    var text = this.add.text(this.world.centerX, this.world.centerY,
-      "Tap to Play!", textOptions);
-    text.anchor.setTo(0.5);
+    // var graphics = this.add.graphics();
+    // graphics.beginFill(0x0F0F0F, 1);
+    // graphics.drawCircle(this.world.centerX, this.world.centerY, 500);
+    //
+    // var text = this.add.text(this.world.centerX, this.world.centerY,
+    //   "Tap to Play!", textOptions);
+    // text.anchor.setTo(0.5);
   };
 
   var update = function() {
+      // config.gameWidth
+
     bacteriaFilter.update();
   };
 

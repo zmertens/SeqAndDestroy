@@ -37,5 +37,9 @@ void main() {
     vec2 uv = gl_FragCoord.xy / resolution.xy;
     float t = fworley(uv * resolution.xy / 1500.0);
     t *= exp(-length2(abs(0.7*uv - 1.0)));
+
+    if (uv <= 0.5)
+        t += 0.1;
+
     gl_FragColor = vec4(t * vec3(0.1, 1.5*t, 1.2*t + pow(t, 0.5-t)), 1.0);
 }

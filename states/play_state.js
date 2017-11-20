@@ -37,7 +37,7 @@ var playState = (function() {
       spriteWidth: spriteWidth,
       spriteHeight: spriteHeight
     };
-    nucFac = nucleobases.createNucleobaseFactory(factoryOptions);
+    // nucFac = nucleobases.createNucleobaseFactory(factoryOptions);
 
     var rowManOptions = {
       game: this.game,
@@ -48,7 +48,7 @@ var playState = (function() {
       elementConstructor: nucFac.createRandomNucleobase.bind(nucFac),
       gameWinCallback: gameWinCallback
     };
-    rowMan = rowManager.createRowManager(rowManOptions);
+    // rowMan = rowManager.createRowManager(rowManOptions);
 
     var nrtiOptions = {
       game: this.game,
@@ -56,9 +56,9 @@ var playState = (function() {
       gameWidth: config.gameWidth,
       gameHeight: config.gameHeight,
       columnWidth: spriteWidth,
-      rowHeight: spriteHeight 
+      rowHeight: spriteHeight
     };
-    nrtiMan = nrtiManager.createNRTIManager(nrtiOptions);
+    // nrtiMan = nrtiManager.createNRTIManager(nrtiOptions);
 
     var rtOptions = {
       game: this.game,
@@ -68,13 +68,13 @@ var playState = (function() {
       blockedCallback: rtBlockedCallback
     };
 
-    rt = reverseTranscriptase.createReverseTranscriptase(rtOptions);
-    rt.activate();
+    // rt = reverseTranscriptase.createReverseTranscriptase(rtOptions);
+    // rt.activate();
 
-    var graphics = this.add.graphics();
-    graphics.beginFill(0xFF0000, 0.3);
-    //graphics.drawCircle(this.world.centerX, this.world.centerY, 500);
-    graphics.drawRect(0, maxY(), config.gameWidth, config.gameHeight);
+    // var graphics = this.add.graphics();
+    // graphics.beginFill(0xFF0000, 0.3);
+    // //graphics.drawCircle(this.world.centerX, this.world.centerY, 500);
+    // graphics.drawRect(0, maxY(), config.gameWidth, config.gameHeight);
 
     nrtiMan.createNRTI();
 
@@ -83,7 +83,7 @@ var playState = (function() {
 
   function update() {
     bacteriaFilter.update();
-    
+
     this.game.physics.arcade.overlap(nrtiMan.getNRTI(), rowMan.getActiveRow(),
       gridOverlapHandler, null, this);
     this.game.physics.arcade.overlap(nrtiMan.getNRTI(),
@@ -184,7 +184,7 @@ var playState = (function() {
         nrtiMan.getNRTI().y += spriteHeight;
       }
 
-      var y = rowMan.getActiveRow().getAt(0).y + spriteHeight; 
+      var y = rowMan.getActiveRow().getAt(0).y + spriteHeight;
 
       if (y >= maxY()) {
         gameOver(this);
