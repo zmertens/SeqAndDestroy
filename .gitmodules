@@ -1,0 +1,3 @@
+[submodule "dawg"]
+	path = dawg
+	url = https://github.com/zmertens/dawg.git
